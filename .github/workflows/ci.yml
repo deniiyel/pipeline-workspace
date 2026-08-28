@@ -10,8 +10,7 @@ jobs:
   test-python-services:
     name: Test Python Microservices
     runs-on: ubuntu-latest
-    
-    # Spin up Redis container on GitHub runner for run4 tests
+
     services:
       redis:
         image: redis
@@ -39,7 +38,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install fastapi uvicorn pytest httpx PyJWT redis pydantic
+          pip install fastapi uvicorn pytest httpx PyJWT redis pydantic python-multipart "passlib[bcrypt]" python-jose cryptography
 
       - name: Execute Pytest Suite in ${{ matrix.directory }}
         run: |
