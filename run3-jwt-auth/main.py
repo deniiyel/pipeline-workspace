@@ -1,38 +1,47 @@
-import hashlib
-import time
 import sqlite3
+from datetime import datetime, timedelta, timezone
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from passlib.context import CryptContext
 from pydantic import BaseModel
 import jwt
 
-app = FastAPI(title="JWT Auth & User Service")
-
-SECRET_KEY = "super-secret-production-key-change-me"
+SECRET_KEY = "super-secret-key-change-in-production"
 ALGORITHM = "HS256"
-DB_NAME = "auth.db"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+DB_FILE = "auth.db"
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
-def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+app = FastAPI(title="JWT Auth Microservice")
+
+def get_db_connection():
+    """Returns a SQLite connection with WAL mode and 30s timeout enabled."""
+    conn = sqlite3.connect(DB_FILE, timeout=30.0)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def init_db():
-    with sqlite3.connect(DB_NAME, timeout=10) as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                hashed_password TEXT NOT NULL
-            )
-        """)
-        conn.commit()
+    """Initializes the database schema and closes the connection cleanly."""
+    conn = get_db_connection()
+    try:
+        with conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    hashed_password TEXT NOT NULL
+                )
+            """)
+    finally:
+        conn.close()
 
-init_db()
-
-class UserRegister(BaseModel):
+# Pydantic Schemas
+class UserCreate(BaseModel):
     username: str
     password: str
 
@@ -40,60 +49,88 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
-class TokenResponse(BaseModel):
+class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str
 
-def create_access_token(data: dict, expires_delta: int = 3600) -> str:
+# Helper Functions
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
-    to_encode.update({"exp": int(time.time()) + expires_delta})
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: Optional[str] = payload.get("sub")
+        username: str = payload.get("sub")
         if username is None:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-        return username
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
     except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username FROM users WHERE username = ?", (username,))
+        user = cursor.fetchone()
+    finally:
+        conn.close()
+
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    return dict(user)
+
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
-def register(user: UserRegister):
-    if not user.username.strip() or not user.password.strip():
-        raise HTTPException(status_code=400, detail="Username and password cannot be empty")
-    
-    hashed_pw = hash_password(user.password)
-    conn = sqlite3.connect(DB_NAME, timeout=10)
+def register(user: UserCreate):
+    conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, hashed_password) VALUES (?, ?)", (user.username, hashed_pw))
+        cursor.execute("SELECT id FROM users WHERE username = ?", (user.username,))
+        if cursor.fetchone():
+            raise HTTPException(status_code=400, detail="Username already registered")
+        
+        hashed_password = get_password_hash(user.password)
+        cursor.execute(
+            "INSERT INTO users (username, hashed_password) VALUES (?, ?)",
+            (user.username, hashed_password)
+        )
         conn.commit()
-    except sqlite3.IntegrityError:
-        raise HTTPException(status_code=400, detail="Username already exists")
     finally:
         conn.close()
+        
     return {"message": "User registered successfully"}
 
-@app.post("/login", response_model=TokenResponse)
+@app.post("/login", response_model=Token)
 def login(user: UserLogin):
-    hashed_pw = hash_password(user.password)
-    conn = sqlite3.connect(DB_NAME, timeout=10)
+    conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT hashed_password FROM users WHERE username = ?", (user.username,))
-        row = cursor.fetchone()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (user.username,))
+        db_user = cursor.fetchone()
     finally:
         conn.close()
 
-    if not row or row[0] != hashed_pw:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+    if not db_user or not verify_password(user.password, db_user["hashed_password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
 
-    token = create_access_token(data={"sub": user.username})
-    return {"access_token": token, "token_type": "bearer"}
+    access_token = create_access_token(data={"sub": db_user["username"]})
+    return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/me")
-def get_me(current_user: str = Depends(get_current_user)):
-    return {"status": "authenticated", "username": current_user}
+@app.get("/protected")
+def protected_route(current_user: dict = Depends(get_current_user)):
+    return {"message": f"Hello {current_user['username']}, you have accessed protected data!"}
