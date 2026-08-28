@@ -10,6 +10,19 @@ jobs:
   test-python-services:
     name: Test Python Microservices
     runs-on: ubuntu-latest
+    
+    # Spin up Redis container on GitHub runner for run4 tests
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     strategy:
       matrix:
         directory: [run1-todo-api, run3-jwt-auth, run4-redis-pubsub, run5-metrics-api]
@@ -26,7 +39,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install fastapi uvicorn pytest httpx PyJWT
+          pip install fastapi uvicorn pytest httpx PyJWT redis pydantic
 
       - name: Execute Pytest Suite in ${{ matrix.directory }}
         run: |
