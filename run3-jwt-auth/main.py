@@ -51,7 +51,7 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
 
 # Helper Functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -94,6 +94,9 @@ def startup_event():
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate):
+    if not user.username.strip() or not user.password.strip():
+        raise HTTPException(status_code=400, detail="Username and password cannot be empty")
+
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
