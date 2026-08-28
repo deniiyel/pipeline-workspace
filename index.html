@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Workspace | 5 Backend Microservices</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header / Nav -->
+    <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="bg-indigo-600 text-white font-mono font-bold px-2.5 py-1 rounded text-sm">MONOREPO</span>
+                <span class="font-bold text-lg tracking-tight">pipeline-workspace</span>
+            </div>
+            <a href="https://github.com/deniiyel/pipeline-workspace" target="_blank" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold px-4 py-2 rounded-lg transition border border-slate-700">
+                <i class="fab font-xl fa-github"></i> GitHub Repo
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="max-w-6xl mx-auto px-6 pt-16 pb-12 text-center md:text-left md:flex items-center justify-between gap-12">
+        <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-6">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> CI/CD Automated Workflow Passing
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                Backend Systems & Microservices Architecture
+            </h1>
+            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                A monorepo featuring 5 production-ready backend services covering REST APIs, JWT authentication, multi-container Docker orchestration, Redis Pub/Sub event queues, and time-series telemetry.
+            </p>
+            <div class="flex flex-wrap gap-3">
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">Python 3.11</span>
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">FastAPI</span>
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">Node.js Express</span>
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">PostgreSQL</span>
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">Redis</span>
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">Docker Compose</span>
+                <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-indigo-400 rounded-md text-xs font-mono">GitHub Actions</span>
+            </div>
+        </div>
+        <div class="mt-8 md:mt-0 bg-slate-950 border border-slate-800 p-6 rounded-xl shadow-2xl font-mono text-sm text-slate-300 w-full md:w-96">
+            <div class="flex items-center gap-2 mb-4 border-b border-slate-800 pb-3">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-xs text-slate-500 ml-auto">pytest runner</span>
+            </div>
+            <p class="text-emerald-400">✓ run1-todo-api (7/7 passed)</p>
+            <p class="text-emerald-400">✓ run2-postgres-docker (healthy)</p>
+            <p class="text-emerald-400">✓ run3-jwt-auth (6/6 passed)</p>
+            <p class="text-emerald-400">✓ run4-redis-pubsub (4/4 passed)</p>
+            <p class="text-emerald-400">✓ run5-metrics-api (5/5 passed)</p>
+            <p class="text-slate-500 mt-4 border-t border-slate-800 pt-3 text-xs">Total: 22 tests passing in CI</p>
+        </div>
+    </header>
+
+    <!-- Project Cards Grid -->
+    <main class="max-w-6xl mx-auto px-6 py-12 border-t border-slate-800">
+        <h2 class="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+            <i class="fas fa-cubes text-indigo-400"></i> Project Microservices
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Run 1 -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded">Run 1</span>
+                    <i class="fas fa-check-circle text-emerald-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Todo CRUD API</h3>
+                <p class="text-slate-400 text-sm mb-4">Persistent Task CRUD REST API with SQLite database integration and full unit test coverage.</p>
+                <div class="text-xs font-mono text-slate-500">Stack: FastAPI, SQLite, Pytest</div>
+            </div>
+
+            <!-- Run 2 -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded">Run 2</span>
+                    <i class="fas fa-cubes text-indigo-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Multi-Container Microservice</h3>
+                <p class="text-slate-400 text-sm mb-4">Express API with Redis cache-aside pattern (60s TTL) and PostgreSQL persistence via Docker Compose.</p>
+                <div class="text-xs font-mono text-slate-500">Stack: Node.js, Express, Postgres, Redis, Docker</div>
+            </div>
+
+            <!-- Run 3 -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded">Run 3</span>
+                    <i class="fas fa-key text-amber-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">JWT Authentication Service</h3>
+                <p class="text-slate-400 text-sm mb-4">Stateless auth service with SHA-256 password hashing, HS256 JWT tokens, and protected routes.</p>
+                <div class="text-xs font-mono text-slate-500">Stack: FastAPI, PyJWT, SQLite, HTTPBearer</div>
+            </div>
+
+            <!-- Run 4 -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded">Run 4</span>
+                    <i class="fas fa-bolt text-yellow-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Redis Pub/Sub Event Worker</h3>
+                <p class="text-slate-400 text-sm mb-4">Resilient event processing worker featuring JSON schema validation and Dead Letter Queue (DLQ) routing.</p>
+                <div class="text-xs font-mono text-slate-500">Stack: Python, Redis Pub/Sub, DLQ Pattern</div>
+            </div>
+
+            <!-- Run 5 -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded">Run 5</span>
+                    <i class="fas fa-chart-line text-cyan-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Time-Series Metrics API</h3>
+                <p class="text-slate-400 text-sm mb-4">Telemetry data ingestion microservice with live statistical aggregations (min, max, average, count).</p>
+                <div class="text-xs font-mono text-slate-500">Stack: FastAPI, Time-Series Ingestion, Pydantic</div>
+            </div>
+
+            <!-- CI/CD Card -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded">DevOps</span>
+                    <i class="fas fa-code-branch text-emerald-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Automated CI/CD Pipeline</h3>
+                <p class="text-slate-400 text-sm mb-4">Parallel testing matrix via GitHub Actions workflow running automated checks on every push.</p>
+                <div class="text-xs font-mono text-slate-500">Stack: GitHub Actions, YAML, Matrix Workflows</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Quickstart Section -->
+    <section class="max-w-6xl mx-auto px-6 py-12 border-t border-slate-800">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <i class="fas fa-terminal text-indigo-400"></i> Local Execution Quickstart
+        </h2>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 font-mono text-sm">
+            <p class="text-slate-500 mb-2"># Clone the repository and execute automated test suites</p>
+            <p class="text-slate-200 mb-2"><span class="text-indigo-400">git clone</span> https://github.com/deniiyel/pipeline-workspace.git</p>
+            <p class="text-slate-200 mb-2"><span class="text-indigo-400">cd</span> pipeline-workspace</p>
+            <p class="text-slate-200 mb-2"><span class="text-indigo-400">python -m pytest</span> run1-todo-api run3-jwt-auth run4-redis-pubsub run5-metrics-api</p>
+            <p class="text-slate-200"><span class="text-indigo-400">cd</span> run2-postgres-docker && <span class="text-indigo-400">docker compose up -d</span></p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 text-center py-8 text-slate-500 text-sm">
+        <p>Engineered by <a href="https://github.com/deniiyel" target="_blank" class="text-slate-300 font-semibold hover:underline">Daniyal (deniiyel)</a> • Pipeline Workspace Monorepo</p>
+    </footer>
+
+</body>
+</html>

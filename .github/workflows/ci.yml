@@ -1,0 +1,47 @@
+name: Pipeline Workspace CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-python-services:
+    name: Test Python Microservices
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: [run1-todo-api, run3-jwt-auth, run4-redis-pubsub, run5-metrics-api]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn pytest httpx PyJWT
+
+      - name: Execute Pytest Suite in ${{ matrix.directory }}
+        run: |
+          cd ${{ matrix.directory }}
+          python -m pytest
+
+  test-docker-service:
+    name: Validate Docker Microservice
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose Configuration
+        run: |
+          cd run2-postgres-docker
+          docker compose config
