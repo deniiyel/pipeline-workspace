@@ -38,7 +38,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install fastapi uvicorn pytest httpx PyJWT redis pydantic python-multipart "passlib[bcrypt]" python-jose cryptography
+          pip install fastapi uvicorn pytest httpx PyJWT redis pydantic python-multipart "bcrypt==3.2.0" "passlib[bcrypt]" python-jose[cryptography] email-validator
 
       - name: Execute Pytest Suite in ${{ matrix.directory }}
         run: |
